@@ -30,7 +30,7 @@ def close():
     if spi is not None:
         spi.close()
 
-def output(ch, int, val: float):
+def output(ch: int, val: float):
     """_summary_
 
     Args:
