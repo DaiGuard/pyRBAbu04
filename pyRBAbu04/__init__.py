@@ -44,7 +44,7 @@ def output(ch: int, val: float):
     data = [0x00, 0x00]
 
     try:
-        if float < 0.0 or float > 1.0:
+        if val < 0.0 or val > 1.0:
             raise ValueError('over range input value')
 
         vol = int(4095*val)
