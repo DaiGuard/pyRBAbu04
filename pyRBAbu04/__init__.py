@@ -17,6 +17,8 @@ DAC_CS_PIN = 25
 spi = None
 
 def open():
+    """Open spi device for RB-Abu-04
+    """
     global spi
 
     spi = spidev.SpiDev()
@@ -29,47 +31,45 @@ def open():
     GPIO.setup(DAC_CS_PIN, GPIO.OUT)
 
 def close():
+    """Close spi device for RB-Abu-04
+    """
     global spi
 
     if spi is not None:
         spi.close()
 
 def output(ch: int, val: float):
-    """_summary_
+    """Output voltage for RB-Abu-04
 
     Args:
-        ch (int): _description_
-        val (float): _description_
+        ch (int): output channel 0 or 1
+        val (float): output voltage scale 0.0~1.0
 
     Raises:
-        Exception: _description_
+        ValueError: over range input values
     """
     global spi
-    
+
     data = [0x00, 0x00]
+    
+    if val < 0.0 or val > 1.0:
+        raise ValueError('over range input value')
 
-    try:
-        if val < 0.0 or val > 1.0:
-            raise ValueError('over range input value')
+    vol = int(4095*val)
 
-        vol = int(4095*val)
+    GPIO.output(DAC_CS_PIN, 1)
 
-        GPIO.output(DAC_CS_PIN, 1)
+    if ch in [0, 1]:
+        if ch == 1:
+            data[0] |= 0x80
+    else:
+        raise ValueError('over range input channel')
+    
+    data[0] |= 0x10
 
-        if ch in [0, 1]:
-            if ch == 1:
-                data[0] |= 0x80
-        else:
-            raise ValueError('over range input channel')
-        
-        data[0] |= 0x10
+    data[0] |= ((vol >> 8) & 0x0f)
+    data[1] |= (vol & 0xff)
 
-        data[0] |= ((vol >> 8) & 0x0f)
-        data[1] |= (vol & 0xff)
+    res = spi.xfer2(data)
 
-        res = spi.xfer2(data)
-
-        GPIO.output(DAC_CS_PIN, 0)
-
-    except Exception as e:
-        print("\033[31m{}\033[0m".format(e), file=sys.stderr)
+    GPIO.output(DAC_CS_PIN, 0)
