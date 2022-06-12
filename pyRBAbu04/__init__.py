@@ -17,14 +17,14 @@ DAC_CS_PIN = 25
 spi = None
 
 def open():
-    GPIO.setmode(GPIO.BCM)
-    GPIO.setup(DAC_CS_PIN, GPIO.OUT)
-
     spi = spidev.SpiDev()
     spi.open(SPI_ID, SPI_CN)
 
     spi.max_speed_hz = SPI_MAX_SPEED_HZ
     spi.mode = SPI_MODE
+
+    GPIO.setmode(GPIO.BCM)
+    GPIO.setup(DAC_CS_PIN, GPIO.OUT)
 
 def close():
     if spi is not None:
