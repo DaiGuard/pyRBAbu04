@@ -17,6 +17,8 @@ DAC_CS_PIN = 25
 spi = None
 
 def open():
+    global spi
+
     spi = spidev.SpiDev()
     spi.open(SPI_ID, SPI_CN)
 
@@ -27,6 +29,8 @@ def open():
     GPIO.setup(DAC_CS_PIN, GPIO.OUT)
 
 def close():
+    global spi
+
     if spi is not None:
         spi.close()
 
@@ -40,7 +44,8 @@ def output(ch: int, val: float):
     Raises:
         Exception: _description_
     """
-
+    global spi
+    
     data = [0x00, 0x00]
 
     try:
